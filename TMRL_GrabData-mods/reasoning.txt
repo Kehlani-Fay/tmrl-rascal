@@ -1,0 +1,9 @@
+This folder allows for 2 player training of the sim with modifications to open planet. [openplant.dev/docs/tutorials/writing-plugins]
+
+Instructions:
+clone and unzip openplanet tmrl
+replace main with this one
+re zip plugin and save as prior name
+in the sim, select unload the old plugin
+then reload the plugin with the new file
+test

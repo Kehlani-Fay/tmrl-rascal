@@ -126,16 +126,15 @@ with open(os.path.join(HERE, "README.md")) as fid:
     README = fid.read()
 
 setup(
-    name='tmrl',
+    name='tmrl-rascal',
     version='0.5.1',
-    description='Network-based framework for real-time robot learning',
+    description='|￣￣￣￣￣￣￣ |  |    Pizza     ||＿＿＿＿＿ _＿_|(\__/) || (•ㅅ•) || / 　 づ',
     long_description=README,
     long_description_content_type='text/markdown',
     keywords='reinforcement learning, robot learning, trackmania, self driving, roborace',
-    url='https://github.com/trackmania-rl/tmrl',
-    download_url='https://github.com/trackmania-rl/tmrl/archive/refs/tags/v0.5.1.tar.gz',
-    author='Yann Bouteiller, Edouard Geze',
-    author_email='yann.bouteiller@polymtl.ca, edouard.geze@hotmail.fr',
+    url='https://github.com/Kehlani-Fay/tmrl-rascal/',
+    author='Kehlani Fay, fork built from Yann Bouteiller and Edouard Geze',
+    author_email='kfay@g.hmc.edu',
     license='MIT',
     install_requires=install_req,
     classifiers=[

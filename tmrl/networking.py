@@ -79,6 +79,9 @@ class Buffer:
         """
         self.memory.append(sample)
         self.clip_to_maxlen()
+    
+    def buffer_length(self):
+        return maxlen
 
     def clear(self):
         """
@@ -197,7 +200,9 @@ class TrainerInterface:
         buffers = self.__endpoint.receive_all()
         res = Buffer()
         for buf in buffers:
-            res += buf
+            if(buffers.buffer_length() >= 2):
+                res += buf[0]
+                human_res += buf[1]
         self.__endpoint.notify(groups={'trainers': -1})  # retrieve everything
         return res
 
