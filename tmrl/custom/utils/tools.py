@@ -16,11 +16,11 @@ from tmrl.config.config_constants import LIDAR_BLACK_THRESHOLD
 
 
 class TM2020OpenPlanetClient:
-    def __init__(self, host='127.0.0.1', port=9000, struct_str='<' + 'f' * 11):
+    def __init__(self, host='127.0.0.1', port=9000, struct_str='<' + 'f' * 11, ):
         self._struct_str = struct_str
         self.nb_floats = self._struct_str.count('f')
         self.nb_uint64 = self._struct_str.count('Q')
-        self._nb_bytes = self.nb_floats * 4 + self.nb_uint64 * 8
+        self._nb_bytes = self.nb_floats * 4 + self.nb_uint64 * 8 
 
         self._host = host
         self._port = port
@@ -81,6 +81,71 @@ def armin(tab):
     else:
         return len(tab) - 1
 
+class DualPlayerClient:
+    def __init__(self, host='127.0.0.1', port=9000, struct_str='<' + 'f' * 22, ):
+        self._struct_str = struct_str
+        self.nb_floats = self._struct_str.count('f')
+        self.nb_uint64 = self._struct_str.count('Q')
+        self._nb_bytes = self.nb_floats * 8 + self.nb_uint64 * 16 #originally 5, 8
+
+        self._host = host
+        self._port = port
+
+        # Threading attributes:
+        self.__lock = Lock()
+        self.__data = None
+        self.__t_client = Thread(target=self.__client_thread, args=(), kwargs={}, daemon=True)
+        self.__t_client.start()
+
+    def __client_thread(self):
+        """
+        Thread of the client.
+        This listens for incoming data until the object is destroyed
+        TODO: handle disconnection
+        """
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self._host, self._port))
+            data_raw = b''
+            while True:  # main loop
+                while len(data_raw) < self._nb_bytes:
+                    data_raw += s.recv(1024)
+                div = len(data_raw) // self._nb_bytes
+                data_used = data_raw[(div - 1) * self._nb_bytes:div * self._nb_bytes]
+                data_raw = data_raw[div * self._nb_bytes:]
+                self.__lock.acquire()
+                self.__data = data_used
+                self.__lock.release()
+
+    def retrieve_data(self, sleep_if_empty=0.01, timeout=10.0):
+        """
+        Retrieves the most recently received data
+        Use this function to retrieve the most recently received data
+        This blocks if nothing has been received so far
+        """
+        c = True
+        t_start = None
+        while c:
+            self.__lock.acquire()
+            if self.__data is not None:
+                data = struct.unpack(self._struct_str, self.__data)
+                c = False
+                self.__data = None
+            self.__lock.release()
+            if c:
+                if t_start is None:
+                    t_start = time.time()
+                t_now = time.time()
+                assert t_now - t_start < timeout, f"OpenPlanet stopped sending data since more than {timeout}s."
+                time.sleep(sleep_if_empty)
+        return data
+
+
+def armin(tab):
+    nz = np.nonzero(tab)[0]
+    if len(nz) != 0:
+        return nz[0].item()
+    else:
+        return len(tab) - 1
 
 class Lidar:
     def __init__(self, im):

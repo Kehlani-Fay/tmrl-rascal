@@ -167,7 +167,7 @@ class TrainerInterface:
                  hostname=cfg.HOSTNAME,
                  model_path=cfg.MODEL_PATH_TRAINER):
         self.model_path = model_path
-        self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
+        self.server_ip = server_ip if server_ip is not None else '127.0.0.1' #"134.173.38.244" #'127.0.0.1'
         self.__endpoint = Endpoint(ip_server=self.server_ip,
                                    port=server_port,
                                    password=password,
@@ -514,7 +514,7 @@ class RolloutWorker:
         self.model_history = model_history
         self._cur_hist_cpt = 0
 
-        self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
+        self.server_ip = server_ip if server_ip is not None else '127.0.0.1' # "134.173.38.244"
 
         print_with_timestamp(f"server IP: {self.server_ip}")
 

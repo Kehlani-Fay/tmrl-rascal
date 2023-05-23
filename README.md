@@ -140,7 +140,7 @@ To do so, follow these instructions on all your machines:
 - Open `config.json`;
 - Set the `"TLS"` entry to `true`;
 - Replace the `"PASSWORD"` entry with a strong password of your own (the same on all your machines);
-- On the machine hosting your `Server`, generate a TLS key and certificate (follow the [tlspyo instructions](https://github.com/MISTLab/tls-python-object#tls-setup));
+- On the machine hosting your `Server`, generate a TLS key and certificate (follow the [tlspyo instructions]());
 - Copy your generated certificate on all other machines (either in the default tlspyo credentials directory or in a directory of your choice);
 - If you used your own directory in the previous step, replace the `"TLS_CREDENTIALS_DIRECTORY"` entry with its path.
 
@@ -484,10 +484,12 @@ You can discuss contribution projects in the [discussions section](https://githu
 When contributing, please submit a PR with your name in the contributors list with a short caption.
 
 ## Maintainers:
+- TMRL2Pkay: Kfay
 - Yann Bouteiller
 - Edouard Geze
 
 ## Contributors:
+- Kfay
 - Simon Ramstedt - initial code base
 - AndrejGobeX - optimization of screen capture
 

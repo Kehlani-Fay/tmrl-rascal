@@ -11,10 +11,8 @@ import tmrl.config.config_constants as cfg
 from tmrl.custom.utils.tools import TM2020OpenPlanetClient
 import logging
 
-
 PATH_REWARD = cfg.REWARD_PATH
 DATASET_PATH = cfg.DATASET_PATH
-
 
 def record_reward_dist(path_reward=PATH_REWARD):
     positions = []

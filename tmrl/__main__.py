@@ -11,7 +11,7 @@ from tmrl.tools.check_environment import check_env_tm20lidar, check_env_tm20full
 from tmrl.envs import GenericGymEnv
 from tmrl.networking import Server, Trainer, RolloutWorker
 from tmrl.util import partial
-
+from tmrl.tools.humanData import record_human_data
 
 def main(args):
     if args.server:
@@ -61,6 +61,8 @@ def main(args):
             check_env_tm20lidar()
         else:
             check_env_tm20full()
+    elif args.humandata:
+        record_human_data()
     else:
         raise ArgumentTypeError('Enter a valid argument')
 
@@ -72,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument('--worker', action='store_true', help='launches a rollout worker')
     parser.add_argument('--test', action='store_true', help='runs inference without training')
     parser.add_argument('--benchmark', action='store_true', help='runs a benchmark of the environment')
+    parser.add_argument('--humandata', action='store_true', help='collect human data to learn')
     parser.add_argument('--record-reward', dest='record_reward', action='store_true', help='utility to record a reward function in TM20')
     parser.add_argument('--check-environment', dest='check_env', action='store_true', help='utility to check the environment')
     parser.add_argument('--no-wandb', dest='no_wandb', action='store_true', help='(use with --trainer) if you do not want to log results on Weights and Biases, use this option')

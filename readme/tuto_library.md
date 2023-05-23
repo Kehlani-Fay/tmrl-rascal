@@ -121,8 +121,8 @@ In this tutorial, we will use our localhost IP (i,e, `127.0.0.1`) and port `6666
 In an Internet application, you would adapt these to your network setup:
 
 ```python
-server_ip = "127.0.0.1"  # IP of the machine where we will run our TMRL Server
-server_port = 6666  # port through which our Server will be accessible
+server_ip = "127.0.0.1" #"134.173.38.244"  # IP of the machine where we will run our TMRL Server
+server_port = 6666 #55555  # port through which our Server will be accessible
 ```
 
 
