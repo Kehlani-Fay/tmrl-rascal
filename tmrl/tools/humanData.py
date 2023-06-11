@@ -1,6 +1,7 @@
 # standard library imports
 import pickle
 import time
+import time
 
 from rtgym import RealTimeGymInterface, DEFAULT_CONFIG_DICT, DummyRCDrone
 from tmrl.util import partial, cached_property
@@ -17,6 +18,9 @@ import logging
 from tmrl.networking import Server, RolloutWorker, Trainer
 
 import csv
+
+#record time
+start_time = time.time()
 
 #set config params
 PATH_REWARD = cfg.REWARD_PATH
@@ -159,7 +163,7 @@ def record_human_data():
 
     # data[0...N] = 0: Speed, 1: Distance, 2: x, 3:y, 4:z, 5: inputsteer, 6: inputgas, 7: engingercur, 8: rpm             
     with open('humanTrials.csv', 'a', newline='') as csvfile:
-        fieldnames = ['H1_Speed', 'H1_Distance', 'H1_x_pos', 'H1_y_pos', 'H1_z_pos',  'H1_input_steer', 'H1_gas','H1_gear', 'H1_rpm', 'H2_Speed', 'H2_Distance', 'H2_x_pos', 'H2_y_pos', 'H2_z_pos',  'H2_input_steer', 'H2_gas','H2_gear', 'H2_rpm']
+        fieldnames = ['H1_Speed', 'H1_Distance', 'H1_x_pos', 'H1_y_pos', 'H1_z_pos',  'H1_input_steer', 'H1_gas','H1_gear', 'H1_rpm', 'H1_Time', 'H2_Speed', 'H2_Distance', 'H2_x_pos', 'H2_y_pos', 'H2_z_pos',  'H2_input_steer', 'H2_gas','H2_gear', 'H2_rpm', 'H2_Time']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         print("I made a csv dumb dumb")
@@ -181,9 +185,10 @@ def record_human_data():
             if is_recording:
                 data = client.retrieve_data(sleep_if_empty=0.01)  # we need many points to build a smooth curve
                 terminated = bool(data[16])
+                current_time = time.time() - start_time
                 writer.writerow({'H1_Speed' : data[0], 'H1_Distance' : data[1], 'H1_x_pos' : data[2], 'H1_y_pos' : data[3], 'H1_z_pos' : data[4],  'H1_input_steer' : data[5],
-                    'H1_gas' : data[6], 'H1_gear' : data[7], 'H1_rpm' : data[8], 'H2_Speed' : data[9], 'H2_Distance' : data[10], 'H2_x_pos' : data[11], 'H2_y_pos' : data[12],
-                    'H2_z_pos' : data[13],  'H2_input_steer' : data[14], 'H2_gas' : data[15], 'H2_gear' : data[16], 'H2_rpm' : data[17]})
+                    'H1_gas' : data[6], 'H1_gear' : data[7], 'H1_rpm' : data[8], 'H1_Time' : current_time, 'H2_Speed' : data[9], 'H2_Distance' : data[10], 'H2_x_pos' : data[11], 'H2_y_pos' : data[12],
+                    'H2_z_pos' : data[13],  'H2_input_steer' : data[14], 'H2_gas' : data[15], 'H2_gear' : data[16], 'H2_rpm' : data[17], 'H2_Time' : current_time})
             else:
                 time.sleep(0.05)  # waiting for user to press E
 
