@@ -1,11 +1,12 @@
 # standard library imports
 import pickle
 import time
-import time
 
 from rtgym import RealTimeGymInterface, DEFAULT_CONFIG_DICT, DummyRCDrone
 from tmrl.util import partial, cached_property
 from tmrl.envs import GenericGymEnv
+
+import Pyro4
 
 # third-party imports
 import keyboard
@@ -18,9 +19,6 @@ import logging
 from tmrl.networking import Server, RolloutWorker, Trainer
 
 import csv
-
-#record time
-start_time = time.time()
 
 #set config params
 PATH_REWARD = cfg.REWARD_PATH
@@ -162,8 +160,8 @@ def record_human_data():
     is_finished = False
 
     # data[0...N] = 0: Speed, 1: Distance, 2: x, 3:y, 4:z, 5: inputsteer, 6: inputgas, 7: engingercur, 8: rpm             
-    with open('humanTrials.csv', 'a', newline='') as csvfile:
-        fieldnames = ['H1_Speed', 'H1_Distance', 'H1_x_pos', 'H1_y_pos', 'H1_z_pos',  'H1_input_steer', 'H1_gas','H1_gear', 'H1_rpm', 'H1_Time', 'H2_Speed', 'H2_Distance', 'H2_x_pos', 'H2_y_pos', 'H2_z_pos',  'H2_input_steer', 'H2_gas','H2_gear', 'H2_rpm', 'H2_Time']
+    with open('humanTrialsName=AJ1.csv', 'a', newline='') as csvfile:
+        fieldnames = ['H1_Speed', 'H1_Distance', 'H1_x_pos', 'H1_y_pos', 'H1_z_pos',  'H1_input_steer', 'H1_gas','H1_gear', 'H1_rpm', 'H2_Speed', 'H2_Distance', 'H2_x_pos', 'H2_y_pos', 'H2_z_pos',  'H2_input_steer', 'H2_gas','H2_gear', 'H2_rpm']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         print("I made a csv dumb dumb")
@@ -185,22 +183,60 @@ def record_human_data():
             if is_recording:
                 data = client.retrieve_data(sleep_if_empty=0.01)  # we need many points to build a smooth curve
                 terminated = bool(data[16])
-                current_time = time.time() - start_time
                 writer.writerow({'H1_Speed' : data[0], 'H1_Distance' : data[1], 'H1_x_pos' : data[2], 'H1_y_pos' : data[3], 'H1_z_pos' : data[4],  'H1_input_steer' : data[5],
-                    'H1_gas' : data[6], 'H1_gear' : data[7], 'H1_rpm' : data[8], 'H1_Time' : current_time, 'H2_Speed' : data[9], 'H2_Distance' : data[10], 'H2_x_pos' : data[11], 'H2_y_pos' : data[12],
-                    'H2_z_pos' : data[13],  'H2_input_steer' : data[14], 'H2_gas' : data[15], 'H2_gear' : data[16], 'H2_rpm' : data[17], 'H2_Time' : current_time})
+                    'H1_gas' : data[6], 'H1_gear' : data[7], 'H1_rpm' : data[8], 'H2_Speed' : data[9], 'H2_Distance' : data[10], 'H2_x_pos' : data[11], 'H2_y_pos' : data[12],
+                    'H2_z_pos' : data[13],  'H2_input_steer' : data[14], 'H2_gas' : data[15], 'H2_gear' : data[16], 'H2_rpm' : data[17]})
             else:
                 time.sleep(0.05)  # waiting for user to press E
+"""
+Python class for sending over humanData
+"""
+import time
+from tmrl.custom.utils.tools import DualPlayerClient
 
+class HumanPickle():
+    def __init__(self):
+        self.start_time = time.time()
+        self.MEGA_ACTION = []
+        self.client = DualPlayerClient()
+        self.Hspeed, self.Hdistance, self.Hrpm, self.Rspeed, self.Rdistance, self.Rrpm = None, None, None, None, None, None
+        self.Hxpos, self.Hypos, self.Hzpos, self.Rxpos, self.Rypos, self.Rzpos = None, None, None, None, None, None
+        self.Hsteer, self.Hgas, self.Hgear, self.Htime, self.Rsteer, self.Rgas, self.Rgear, self.Rtime = None, None, None, None, None, None, None, None
 
+    def send_data(self):
+        data = self.client.retrieve_data(sleep_if_empty=0.01) 
+        current_time = time.time() - self.start_time
 
+        self.Hspeed, self.Hdistance, self.Hrpm, self.Rspeed, self.Rdistance, self.Rrpm = data[0], data[1], data[8], data[9], data[10], data[17]
+        self.Hxpos, self.Hypos, self.Hzpos, self.Rxpos, self.Rypos, self.Rzpos =  data[2], data[3], data[4], data[11], data[12], data[13]
+        self.Hsteer, self.Hgas, self.Hgear, self.Htime = data[5], data[6], data[7], current_time
+        self.Rsteer, self.Rgas, self.Rgear, self.Rtime = data[14], data[15], data[16], current_time
+
+        """
+        writer.writerow({'H1_Speed' : data[0], 'H1_Distance' : data[1], 'H1_x_pos' : data[2], 'H1_y_pos' : data[3], 'H1_z_pos' : data[4],  'H1_input_steer' : data[5],
+        'H1_gas' : data[6], 'H1_gear' : data[7], 'H1_rpm' : data[8], 'H1_Time' : current_time, 'H2_Speed' : data[9], 'H2_Distance' : data[10], 'H2_x_pos' : data[11], 'H2_y_pos' : data[12],
+        'H2_z_pos' : data[13],  'H2_input_steer' : data[14], 'H2_gas' : data[15], 'H2_gear' : data[16], 'H2_rpm' : data[17], 'H2_Time' : current_time})
+        """
+
+        self.MEGA_ACTION = [self.Hspeed, self.Hdistance, self.Hrpm]
+        return self.MEGA_ACTION
+
+if __name__ == "__main__":
+    Shia = HumanPickle()
+    Shia.send_data()
+    dataWarehouse = Pyro4.Proxy("PYRONAME:example.recievedHuman") #stores human actions 
+    dataWarehouse.recieve_data(Shia.MEGA_ACTION)
+    #human_player = HumanPickle()
+    #human_player.send_data()
+
+"""
 if __name__ == "__main__":
     print("yee")
     record_human_data()
 
     #record_reward_dist(path_reward=PATH_REWARD)
 
-    """
+    
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣤⣤⣤⣤⣶⣦⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀ 
 ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠛⠉⠙⠛⠛⠛⠛⠻⢿⣿⣷⣤⡀⠀⠀⠀⠀⠀ 
 ⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⠋⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠈⢻⣿⣿⡄⠀⠀⠀⠀ 
